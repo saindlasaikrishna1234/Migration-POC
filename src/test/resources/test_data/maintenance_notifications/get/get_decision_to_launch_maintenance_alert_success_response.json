@@ -1,0 +1,9 @@
+{
+  "notifiable": true,
+  "idNotificationRange":"#rangeid",
+  "ruleKey": "#rulekey",
+  "metadata": [{
+    "key": "day.number",
+    "value": "#remainingTime"
+  }]
+}

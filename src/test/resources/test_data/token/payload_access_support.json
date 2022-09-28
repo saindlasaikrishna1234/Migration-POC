@@ -1,0 +1,25 @@
+{
+  "sub": "k-internal-kma-dev",
+  "FID": "k-internal-kma-dev",
+  "auditTrackingId": "810044f9-d0ce-494d-9c3e-3d3145317b03",
+  "iss": "https://auth.dev.eu.kamereon.org:443/kauth/oauth2/k-internal-dev",
+  "tokenName": "access_token",
+  "token_type": "Bearer",
+  "KID": "1",
+  "authGrantId": "981d8da9-3667-4143-a267-4bfbe076e907",
+  "aud": "k-internal-kma-dev",
+  "nbf": 1513265884,
+  "grant_type": "client_credentials",
+  "scope": [
+    "kam.eu.kmn.r",
+    "kam.eu.kmn.w"
+  ],
+  "u_type": "s",
+  "auth_time": 1513265884,
+  "realm": "/a-external-dev",
+  "exp": 2577108198,
+  "iat": 1511440598,
+  "expires_in": 3600000,
+  "jti": "01452ff9-9e8b-4047-b7e6-36f92eb79026"
+}
+

@@ -1,0 +1,16 @@
+{
+  "errors": [
+    {
+      "status": "Not Found",
+      "code": "404002",
+      "title": "Not found exception",
+      "detail": "The due date has not been set for this vehicle: VehicleParamEntity - null",
+      "meta": {
+        "spanId": "${SPANID}",
+        "traceId": "${TRACEID}",
+        "parentSpanId": "null",
+        "component": "alliance-platform-maintenance-notifications-dev"
+      }
+    }
+  ]
+}

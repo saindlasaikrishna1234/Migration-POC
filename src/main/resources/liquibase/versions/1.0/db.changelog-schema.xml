@@ -1,0 +1,77 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+    <changeSet logicalFilePath="path-independent" id="feature_AIC-2167_AIC-3040_create-maintenance_alert_tables" author="jmik">
+        <createTable schemaName="maintenance_alert" tableName="c_notification_range">
+            <column autoIncrement="true" name="id" type="SERIAL">
+                <constraints primaryKey="true" primaryKeyName="pk_c_notification_range_id"/>
+            </column>
+            <column name="range" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="alert" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+        <createTable schemaName="maintenance_alert" tableName="c_notification_vehicle">
+            <column autoIncrement="true" name="id" type="SERIAL">
+                <constraints primaryKey="true" primaryKeyName="pk_c_notification_vehicle_id"/>
+            </column>
+            <column name="vehicle_uuid" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="creation_date" type="TIMESTAMP(6) WITHOUT TIME ZONE">
+                <constraints nullable="false"/>
+            </column>
+            <column name="send_date" type="TIMESTAMP(6) WITHOUT TIME ZONE"/>
+            <column name="send" type="boolean">
+                <constraints nullable="false"/>
+            </column>
+            <column name="notification_range_id" type="INT"/>
+        </createTable>
+        <addForeignKeyConstraint baseTableSchemaName="maintenance_alert" baseColumnNames="notification_range_id"
+                                 baseTableName="c_notification_vehicle" constraintName="fk_c_notification_range" deferrable="true"
+                                 initiallyDeferred="true" onDelete="CASCADE" onUpdate="RESTRICT" referencedTableSchemaName="maintenance_alert"
+                                 referencedColumnNames="id" referencedTableName="c_notification_range"/>
+    </changeSet>
+
+    <changeSet logicalFilePath="path-independent" id="feature_AIC-3576_AIC-3649_create-vehicle-param-table" author="bba">
+        <createTable schemaName="maintenance_alert" tableName="c_vehicle_param">
+            <column autoIncrement="true" name="id" type="SERIAL">
+                <constraints primaryKey="true" primaryKeyName="pk_c_vehicle_param_id"/>
+            </column>
+            <column name="vehicle_uuid" type="varchar(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="due_date" type="TIMESTAMP(6) WITHOUT TIME ZONE">
+                <constraints nullable="false"/>
+            </column>
+            <column name="modification_date" type="TIMESTAMP(6) WITHOUT TIME ZONE">
+                <constraints nullable="false"/>
+            </column>
+            <column name="due_mileage" type="varchar(255)">
+                <constraints nullable="true"/>
+            </column>
+        </createTable>
+    </changeSet>
+
+    <changeSet logicalFilePath="path-independent" id="feature_AIC-3576_AIC-3673_update_notification_range" author="bba">
+        <addColumn schemaName="maintenance_alert" tableName="c_notification_range">
+            <column name="remaining_time" type="INTEGER"/>
+        </addColumn>
+    </changeSet>
+
+    <changeSet logicalFilePath="path-independent" id="feature_AIC-3576_AIC-3673_update_notification_vehicle" author="bba">
+        <addColumn schemaName="maintenance_alert" tableName="c_notification_vehicle">
+            <column name="latest_due_date" type="TIMESTAMP(6) WITHOUT TIME ZONE"/>
+        </addColumn>
+        <addColumn schemaName="maintenance_alert" tableName="c_notification_vehicle">
+            <column name="latest_due_mileage" type="varchar(255)"/>
+        </addColumn>
+        <addColumn schemaName="maintenance_alert" tableName="c_notification_vehicle">
+            <column name="vehicle_param_id" type="INT"/>
+        </addColumn>
+    </changeSet>
+</databaseChangeLog>

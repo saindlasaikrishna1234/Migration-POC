@@ -1,0 +1,8 @@
+{
+  "id": "2",
+  "properties": {
+    "type": "USAGE_DATA_RETENTION",
+    "timestamp": "${TIMESTAMP}",
+    "retentionDurationDays": "90"
+  }
+}

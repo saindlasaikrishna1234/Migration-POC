@@ -1,0 +1,10 @@
+{
+  "errors": [
+    {
+      "status": "Bad Request",
+      "code": "400002",
+      "title": "Mandatory value missing",
+      "detail": "Mandatory input value is missing: notificationAlertSent.idNotificationRange - null"
+    }
+  ]
+}

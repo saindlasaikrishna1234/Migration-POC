@@ -1,0 +1,16 @@
+{
+  "errors": [
+    {
+      "status": "Forbidden",
+      "code": "403000",
+      "title": "Forbidden",
+      "detail": "Access is denied",
+      "meta": {
+        "spanId": "${SPANID}",
+        "traceId": "${TRACEID}",
+        "parentSpanId": "null",
+        "component": "alliance-platform-maintenance-notifications-dev"
+      }
+    }
+  ]
+}

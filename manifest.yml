@@ -1,0 +1,17 @@
+---
+applications:
+  - instances: 1
+    memory: 1G
+    buildpacks:
+      - https://github.com/A-CMS/java-buildpack.git
+    stack: cflinuxfs3
+    timeout: 180
+    services:
+      - un-notification-db
+      - kauth-api-maintenance-notifications-credhub
+      - redis
+      - ((rmq-shared-services))
+    env:
+      # https://github.com/pivotal-cf/java-cfenv/tree/v1.1.1.RELEASE#pushing-your-application-to-cloud-foundry
+      JBP_CONFIG_SPRING_AUTO_RECONFIGURATION: '{enabled: false}'
+      SPRING_PROFILES_ACTIVE: 'cloud'

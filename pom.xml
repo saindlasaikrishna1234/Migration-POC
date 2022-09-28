@@ -1,0 +1,388 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.acms.platform</groupId>
+        <artifactId>alliance-platform-parent-springboot</artifactId>
+        <version>3.0.1</version>
+        <relativePath />
+    </parent>
+
+    <artifactId>alliance-platform-maintenance-notifications</artifactId>
+    <version>1.10.0-SNAPSHOT</version>
+    <name>Alliance Platform Maintenance Notifications</name>
+    <description>Vehicle maintenance alerting service</description>
+
+    <scm>
+        <connection>scm:git:git@github.com:A-CMS/alliance-platform-maintenance-notifications.git</connection>
+        <developerConnection>scm:git:git@github.com:A-CMS/alliance-platform-maintenance-notifications.git</developerConnection>
+        <url>scm:git:git@github.com/A-CMS:alliance-platform-maintenance-notifications.git</url>
+        <tag>release-candidate-1.36</tag>
+    </scm>
+
+    <repositories>
+        <repository>
+            <id>nexus-releases</id>
+            <name>nexus-releases</name>
+            <url>https://nexus.kamereon.org/repository/maven-releases</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+        <repository>
+            <id>nexus-snapshots</id>
+            <name>nexus-snapshots</name>
+            <url>https://nexus.kamereon.org/repository/maven-snapshots</url>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
+
+    <properties>
+        <maven.javadoc.skip>true</maven.javadoc.skip>
+        <maven.javadoc.failOnError>false</maven.javadoc.failOnError>
+
+        <commons-io.version>2.6</commons-io.version>
+        <commons-collections4.version>4.4</commons-collections4.version>
+
+        <junit-jupiter.version>5.4.2</junit-jupiter.version>
+        <mockito.version>2.28.2</mockito.version>
+
+        <spring-cloud-contract-wiremock.version>2.2.4.RELEASE</spring-cloud-contract-wiremock.version>
+        <cucumber-spring.version>6.8.1</cucumber-spring.version>
+        <testcontainers.version>1.14.3</testcontainers.version>
+        <android-json.version>0.0.20131108.vaadin1</android-json.version>
+
+        <jedis-mock.version>0.1.16</jedis-mock.version>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.postgresql</groupId>
+            <artifactId>postgresql</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.liquibase</groupId>
+            <artifactId>liquibase-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-jpa</artifactId>
+        </dependency>
+
+
+        <dependency>
+            <groupId>org.springframework.amqp</groupId>
+            <artifactId>spring-rabbit</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.acms.platform</groupId>
+            <artifactId>alliance-platform-amqp-security</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.acms.platform</groupId>
+            <artifactId>alliance-platform-amqp-tracing</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.acms.platform</groupId>
+            <artifactId>alliance-platform-kamereon-internal-client</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.acms.platform</groupId>
+            <artifactId>alliance-platform-web-security</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.acms.platform</groupId>
+            <artifactId>alliance-platform-web-security-services</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.acms.platform</groupId>
+            <artifactId>alliance-platform-web-exceptions</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.acms.platform</groupId>
+            <artifactId>alliance-platform-web-logging</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.acms.platform</groupId>
+            <artifactId>alliance-platform-common-enums</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-security</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-cache</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-redis</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.aic.framework</groupId>
+            <artifactId>aic-vehicle-identity-spring-boot-starter</artifactId>
+        </dependency>
+        <!-- Add Jedis dependency because spring-boot-data-redis uses Lettuce as default -->
+        <dependency>
+            <groupId>redis.clients</groupId>
+            <artifactId>jedis</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.aic.framework</groupId>
+            <artifactId>aic-redis-config</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.acms.platform</groupId>
+            <artifactId>alliance-platform-obfuscation-utils</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.acms.platform</groupId>
+            <artifactId>alliance-platform-eventlogger-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.acms.platform</groupId>
+            <artifactId>alliance-platform-logback-logger</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-sleuth</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.microsoft.azure</groupId>
+            <artifactId>applicationinsights-spring-boot-starter</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.acms.platform</groupId>
+            <artifactId>alliance-platform-app-insights-event-logger</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-registry-prometheus</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-collections4</artifactId>
+            <version>${commons-collections4.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>${commons-io.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.vaadin.external.google</groupId>
+            <artifactId>android-json</artifactId>
+            <version>${android-json.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>io.pivotal.cfenv</groupId>
+            <artifactId>java-cfenv-boot</artifactId>
+        </dependency>
+
+        <!-- TEST -->
+        <dependency>
+            <groupId>io.cucumber</groupId>
+            <artifactId>cucumber-spring</artifactId>
+            <version>${cucumber-spring.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.cucumber</groupId>
+            <artifactId>cucumber-java</artifactId>
+            <version>${cucumber-spring.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.cucumber</groupId>
+            <artifactId>cucumber-junit</artifactId>
+            <version>${cucumber-spring.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-contract-wiremock</artifactId>
+            <version>${spring-cloud-contract-wiremock.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>testcontainers</artifactId>
+            <version>${testcontainers.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>${testcontainers.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>postgresql</artifactId>
+            <version>${testcontainers.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>rabbitmq</artifactId>
+            <version>${testcontainers.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.github.fppt</groupId>
+            <artifactId>jedis-mock</artifactId>
+            <version>${jedis-mock.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-test</artifactId>
+            <scope>test</scope>
+
+            <!-- exclude junit 4 -->
+            <exclusions>
+                <exclusion>
+                    <groupId>junit</groupId>
+                    <artifactId>junit</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>${junit-jupiter.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.vintage</groupId>
+            <artifactId>junit-vintage-engine</artifactId>
+            <version>${junit-jupiter.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <version>${mockito.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-junit-jupiter</artifactId>
+            <version>${mockito.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+    </dependencies>
+
+    <build>
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
+
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>8</source>
+                    <target>8</target>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>pl.project13.maven</groupId>
+                <artifactId>git-commit-id-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>${maven-resources-plugin.version}</version>
+                <executions>
+                    <execution>
+                        <id>copy-resources</id>
+                        <!-- here the phase you need -->
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${basedir}/target/classes</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>${basedir}</directory>
+                                    <includes>
+                                        <include>**/*manifest*.yml</include>
+                                    </includes>
+                                    <filtering>true</filtering>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <plugin>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <version>${maven-failsafe-plugin.version}</version>
+                <executions>
+                    <execution>
+                        <phase>test</phase>
+                        <goals>
+                            <goal>integration-test</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <goals>
+                            <!-- generate build-info.properties -->
+                            <goal>build-info</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+</project>

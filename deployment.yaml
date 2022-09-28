@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-springboot-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: springboot-app
+  template:
+    metadata:
+      labels:
+        app: springboot-app
+    spec:
+      containers:
+      - name: my-springboot-app
+        image: aksmigration.azurecr.io/knapoc:v1
+        imagePullPolicy: Always
+        ports:
+        - name: http-common 
+          containerPort: 8085
+        resources:
+         limits:
+          memory: "1Gi"
+          cpu: "200m"
+         requests:
+          cpu: "20m"
+          memory: "1Gi"
+# service type loadbalancer       
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: springboot-app-service
+spec:
+  ports:
+  - name: http-common
+    port: 8085
+    protocol: TCP
+    targetPort: http-common
+  type: LoadBalancer
+  selector:
+    app: springboot-app

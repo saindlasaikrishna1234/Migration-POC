@@ -1,0 +1,9 @@
+{
+  "type": "DeleteLinkVehicleUser",
+  "data": {
+    "userId": "1",
+    "realm": "a-ncb",
+    "vehicleUuid": "9f4e86a7-5e4f-44c6-b01a-79d2abd5348a",
+    "timestamp": "2019-01-01T00:00:00Z"
+  }
+}

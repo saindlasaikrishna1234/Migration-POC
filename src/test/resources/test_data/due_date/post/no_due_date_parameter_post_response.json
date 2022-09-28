@@ -1,0 +1,16 @@
+{
+  "errors": [
+    {
+      "status": "Bad Request",
+      "code": "400002",
+      "title": "Mandatory value missing",
+      "detail": "Mandatory input value is missing: dueDate - null",
+      "meta": {
+        "spanId": "${SPANID}",
+        "traceId": "${TRACEID}",
+        "parentSpanId": "null",
+        "component": "alliance-platform-maintenance-notifications-dev"
+      }
+    }
+  ]
+}

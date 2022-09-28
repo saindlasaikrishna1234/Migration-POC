@@ -1,0 +1,117 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+
+    <changeSet logicalFilePath="path-independent" id="feature_AIC-2167_AIC-3040_insert-mileage-rules" author="jmik">
+        <insert schemaName="maintenance_alert" tableName="c_notification_range">
+            <column name="range" value="5000km"/>
+            <column name="alert" value="Pre-notification 1"/>
+        </insert>
+        <insert schemaName="maintenance_alert" tableName="c_notification_range">
+            <column name="range" value="2500km"/>
+            <column name="alert" value="Pre-notification 2"/>
+        </insert>
+        <insert schemaName="maintenance_alert" tableName="c_notification_range">
+            <column name="range" value="1500km"/>
+            <column name="alert" value="Pre-notification 3"/>
+        </insert>
+        <insert schemaName="maintenance_alert" tableName="c_notification_range">
+            <column name="range" value="1000km"/>
+            <column name="alert" value="Pre-notification 4"/>
+        </insert>
+        <insert schemaName="maintenance_alert" tableName="c_notification_range">
+            <column name="range" value="500km"/>
+            <column name="alert" value="Pre-notification 5"/>
+        </insert>
+        <insert schemaName="maintenance_alert" tableName="c_notification_range">
+            <column name="range" value="0km"/>
+            <column name="alert" value="Final notification"/>
+        </insert>
+    </changeSet>
+
+    <changeSet logicalFilePath="path-independent" id="feature_AIC-3576_AIC-3673_insert_remaining_time" author="bba">
+        <update schemaName="maintenance_alert" tableName="c_notification_range">
+            <column name="remaining_time" value="42"/>
+            <where>range = '2500km'</where>
+        </update>
+        <update schemaName="maintenance_alert" tableName="c_notification_range">
+            <column name="remaining_time" value="28"/>
+            <where>range = '1500km'</where>
+        </update>
+        <update schemaName="maintenance_alert" tableName="c_notification_range">
+            <column name="remaining_time" value="14"/>
+            <where>range = '1000km'</where>
+        </update>
+        <update schemaName="maintenance_alert" tableName="c_notification_range">
+            <column name="remaining_time" value="7"/>
+            <where>range = '500km'</where>
+        </update>
+        <update schemaName="maintenance_alert" tableName="c_notification_range">
+            <column name="remaining_time" value="0"/>
+            <where>range = '0km'</where>
+        </update>
+    </changeSet>
+
+    <changeSet id="AIC-4460" author="fan">
+        <preConditions onFail="CONTINUE"
+                       onFailMessage="Column creation_date in table c_vehicle_param already exists. Its creation will be skipped">
+            <not>
+                <columnExists tableName="c_vehicle_param" schemaName="maintenance_alert" columnName="creation_date"/>
+            </not>
+        </preConditions>
+        <addColumn tableName="c_vehicle_param" schemaName="maintenance_alert">
+            <column name="creation_date" type="TIMESTAMP WITHOUT TIME ZONE"/>
+        </addColumn>
+    </changeSet>
+
+    <changeSet id="AIC-4455-fix" author="fan">
+        <update schemaName="maintenance_alert" tableName="c_notification_range">
+            <column name="remaining_time" value="50"/>
+            <where>range = '5000km'</where>
+        </update>
+    </changeSet>
+
+    <changeSet id="AIC-6605" author="fan">
+        <preConditions onFail="MARK_RAN">
+            <not>
+                <columnExists schemaName="maintenance_alert" tableName="c_notification_range" columnName="range_distance"/>
+            </not>
+        </preConditions>
+        <addColumn schemaName="maintenance_alert" tableName="c_notification_range">
+            <column name="range_distance" type="INT"/>
+        </addColumn>
+        <update schemaName="maintenance_alert" tableName="c_notification_range">
+            <column name="range_distance" value="5000"/>
+            <where>remaining_time = 50</where>
+        </update>
+        <update schemaName="maintenance_alert" tableName="c_notification_range">
+            <column name="range_distance" value="2500"/>
+            <where>remaining_time = 42</where>
+        </update>
+        <update schemaName="maintenance_alert" tableName="c_notification_range">
+            <column name="range_distance" value="1500"/>
+            <where>remaining_time = 28</where>
+        </update>
+        <update schemaName="maintenance_alert" tableName="c_notification_range">
+            <column name="range_distance" value="1000"/>
+            <where>remaining_time = 14</where>
+        </update>
+        <update schemaName="maintenance_alert" tableName="c_notification_range">
+            <column name="range_distance" value="500"/>
+            <where>remaining_time = 7</where>
+        </update>
+        <update schemaName="maintenance_alert" tableName="c_notification_range">
+            <column name="range_distance" value="0"/>
+            <where>remaining_time = 0</where>
+        </update>
+    </changeSet>
+
+    <changeSet id="AIC-9078" author="JPDev">
+        <update schemaName="maintenance_alert" tableName="c_notification_range">
+            <column name="remaining_time" value="56"/>
+            <where>range_distance = 5000</where>
+        </update>
+    </changeSet>
+</databaseChangeLog>
