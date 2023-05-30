@@ -1,0 +1,33 @@
+import os
+import argparse
+import sys
+import ruamel.yaml as yaml
+
+script_path = os.path.dirname(os.path.abspath(sys.argv[0]))
+
+parser = argparse.ArgumentParser()
+parser.add_argument("--app_name", type=str, help="Application Name", required=True)
+parser.add_argument("--reg_name", type=str, help="Region Name", required=True)
+parser.add_argument("--env_name", type=str, help="Environment Name", required=True)
+parser.add_argument("--tag", type=str,help="Version/tag of application", required=True)
+parser.add_argument("--url", type=str,help="url of application", required=True)
+args = parser.parse_args()
+
+with open(f'{script_path}/default_values.yaml', 'r') as read_file:
+    contents = yaml.round_trip_load(read_file, preserve_quotes=True)
+    contents['image']['tag'] = f"{args.tag}" 
+    contents['service']['name'] = f"{args.app_name}-svc"
+    contents['container']['name'] = f"{args.app_name}-dev"
+    contents['deployment']['name'] = f"{args.app_name}-dep"
+    contents['configmap']['name'] = f"{args.reg_name}-{args.app_name}-{args.env_name}-cm"
+    contents['namespace']['name'] = f"{args.reg_name}-{args.app_name}-{args.env_name}"
+    contents['virtualservice']['name'] = f"{args.app_name}-vs"
+    contents['autoscaling']['name'] = f"{args.app_name}-hpa"
+    contents['secretprovider']['name'] = f"{args.app_name}-sp"
+    contents['secrets']['name'] = f"{args.app_name}-secrets"
+    contents['virtualservice']['http']['match']['uri']['prefix'] = f"{args.url}"
+    print(contents)
+
+
+with open(f'{script_path}/helm-charts/values.yaml', 'w') as write_file:
+    yaml.round_trip_dump(contents, write_file)

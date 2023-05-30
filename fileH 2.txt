@@ -1,0 +1,222 @@
+name: Helm chart deployment
+
+on: 
+  workflow_dispatch:
+    inputs:
+      Region-name:
+        type: choice
+        description: 'Region Name'     
+        required: true
+        options: ['', '--', '--', '--']
+                  
+      Environment-name:
+        type: choice
+        description: 'Environment Name'     
+        required: true
+        options:  ['','stg', 'integration', 'preprod', 'prod']
+        
+      Artifact-name:
+        type: choice
+        description: 'Artifact Name'     
+        required: true
+        options: ['', 'application name']
+     
+      Artifact-version:
+        description: 'Artifact Version'     
+        required: true
+        
+      Settings-URL:
+        type: choice
+        description: 'Settings URL'     
+        required: true
+        options: ['', 'application property repo name']
+        
+      Config-Branch:
+        description: 'App Properties Branch'     
+        required: true  
+        
+      Rollback-HelmVersionNumber:
+        description: 'Helm Version to Rollback'     
+        required: false  
+       
+env:
+    Environment: ${{ github.event.inputs.Environment-name }}
+    Region: ${{ github.event.inputs.Region-name }}
+    ArtifactName: ${{ github.event.inputs.Artifact-name }}
+    ArtifactVersion: ${{ github.event.inputs.Artifact-version }}
+    SettingsURL: ${{ github.event.inputs.Settings-URL }}
+    ConfigBranch: ${{ github.event.inputs.Config-Branch }}
+    Rollback: ${{ github.event.inputs.Rollback-HelmVersionNumber }}
+    Namespace: ${{ github.event.inputs.Region-name }}-${{ github.event.inputs.Artifact-name }}-${{ github.event.inputs.Environment-name }}
+          
+jobs:
+  HelmDeployment:
+    runs-on: self-hosted
+    if: ${{github.actor == 'git id of reposatory' && github.event.inputs.Rollback-HelmVersionNumber == ''}}
+    steps:
+      - name: Checkout current repository
+        uses: actions/checkout@v3
+                                
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+          
+      - name: Assign ResourceGroup, AKSClusterName, ACRName
+        id: aksdetails
+        run: |
+          if (("${{env.Region}}" -eq "je") -and ("${{env.Environment}}" -eq "dev"))
+          { 
+            $AKSClusterName = "AKSMigrationCluster"
+            $ResourceGroupName = "resource group name"
+            $ACRName = "aksmigration"
+          }
+          elseif (("${{env.Region}}" -eq "je") -and ("${{env.Environment}}" -eq "stg"))
+          { 
+            $AKSClusterName = "je-kplat-lowenv-aks-clu-001"
+            $ResourceGroupName = "staging group name"
+            $ACRName = "commonplatstgacr"
+          }
+          echo "::set-output name=AKSClusterName::$AKSClusterName"
+          echo "::set-output name=ResourceGroupName::$ResourceGroupName"
+          echo "::set-output name=ACRName::$ACRName"
+             
+      - name: Checkout another repository
+        uses: actions/checkout@v3
+        with:
+          repository: ${{ env.SettingsURL }}
+          token: '${{ secrets.MYGITHUB_PAT }}'
+          ref: ${{ env.ConfigBranch }}
+          path: AppPropLoc  
+                  
+      - name: Copy configmap and secretprovider file to local repository
+        run: |
+          cp AppPropLoc/${{env.ArtifactName}}/${{env.Region}}/configmap-${{env.Environment}}.yaml ${{ github.workspace }}/helm-charts/application.yaml
+          cp AppPropLoc/${{env.ArtifactName}}/${{env.Region}}/secretprovider-${{env.Environment}}.yaml ${{ github.workspace }}/helm-charts/templates/secretprovider.yaml
+          ls 
+          ls helm-charts
+          ls helm-charts/templates
+          
+      - name: Replace Special Character in the Artifact Version
+        id: artver
+        run: |
+          $artifact_version="${{env.ArtifactVersion}}" -replace ":", "_"
+          echo "::set-output name=artifact_version::$artifact_version"
+          
+      - name: Install dependencies
+        uses: actions/setup-node@v2
+        with: 
+          node-version: '16.x'
+          
+      - run: |
+          npm install js-yaml
+          npm install @actions/core
+          
+      - name: Get value from YAML file
+        id: get-value
+        uses: actions/github-script@v4
+        with:
+          script: |
+              yaml = require('js-yaml');
+              fs = require('fs');           
+              fileContents = fs.readFileSync('helm-charts/application.yaml', 'utf8');
+              data = yaml.load(fileContents);
+              contextPath = data['server.servlet.contextPath'];
+              core=require('@actions/core');
+              core.setOutput('contextPath', contextPath);                                                        
+                            
+      - name: Run Python Script
+        run: |
+              pip install pyyaml
+              pip install ruamel-yaml
+              python myPython.py --app_name ${{env.ArtifactName}} --tag ${{env.ArtifactVersion}} --url ${{ steps.get-value.outputs.contextPath}} --reg_name ${{env.Region}} --env_name ${{env.Environment}}
+              ls
+              git add helm-charts/values.yaml
+              git commit -m "output yaml"
+              git push origin main  
+              
+          
+      - name: Login to Azure 
+        uses: Azure/aks-set-context@v1
+        with:
+         creds: '${{ secrets.AZURE_CREDENTIALS }}'
+         cluster-name: ${{ steps.aksdetails.outputs.AKSClusterName }}
+         resource-group: ${{ steps.aksdetails.outputs.ResourceGroupName }}   
+         
+      - name: Login to AKS Cluster 
+        run: |
+          az login --service-principal -u ${{ secrets.SP_CLIENTID }} -p ${{ secrets.SP_CLIENTSECRET }} --tenant ${{ secrets.SP_TENANTID }}
+          
+      #- name: Check if image exists in ACR
+       # run: |
+        #  az acr repository show --name aksmigrationvnet --image ${{env.ArtifactVersion}} 
+       
+      - name: Install Helm
+        uses: azure/setup-helm@v1
+        with: 
+          version: '3.7.0'
+          
+      - name: Replace Value Placeholder in chart.yaml
+        run: | 
+         $chartPath = "./helm-charts"
+         $appversion = "${{ steps.artver.outputs.artifact_version }}"
+         (Get-content $chartPath\Chart.yaml) -replace '{{ appversion }}', $appversion | Set-Content $chartPath\Chart.yaml
+   
+      - name: Deploy Helm Chart
+        run: |
+         helm lint helm-charts
+         helm package helm-charts
+         helm upgrade --install ${{env.ArtifactName}} helm-charts-0.1.0.tgz -n helm-${{env.ArtifactName}} --create-namespace --wait --atomic
+      
+      - name: Pause seconds
+        run: sleep 20
+        
+      - name: Verify Deployment
+        run: |
+          kubectl get pods -n ${{env.Namespace}}
+          kubectl get deployments -n ${{env.Namespace}}
+          kubectl get services -n ${{env.Namespace}}
+                          
+      - name: Check Health Status
+        run: custom_script.ps1
+                
+  Rollback:
+    runs-on: self-hosted
+    if: ${{github.actor == 'rajeshwari1987' && github.event.inputs.Rollback-HelmVersionNumber != '' }}
+    steps:
+    - name: Assign ResourceGroup, AKSClusterName, ACRName
+      id: aksdetails
+      run: |
+        if (("${{env.Region}}" -eq "je") -and ("${{env.Environment}}" -eq "dev"))
+        { 
+          $AKSClusterName = "AKSMigrationCluster"
+          $ResourceGroupName = "groupname"
+          $ACRName = "aksmigrationvnet"
+        }
+        elseif (("${{env.Region}}" -eq "je") -and ("${{env.Environment}}" -eq "stg"))
+        { 
+          $AKSClusterName = "kubernetes cluster name"
+          $ResourceGroupName = "resource name"
+          $ACRName = "commonplatstgacr"
+        }
+        echo "::set-output name=AKSClusterName::$AKSClusterName"
+        echo "::set-output name=ResourceGroupName::$ResourceGroupName"
+        echo "::set-output name=ACRName::$ACRName"
+
+    - name: Login to Azure 
+      uses: Azure/aks-set-context@v1
+      with:
+       creds: '${{ secrets.AZURE_CREDENTIALS }}'
+       cluster-name: ${{ steps.aksdetails.outputs.AKSClusterName }}
+       resource-group: ${{ steps.aksdetails.outputs.ResourceGroupName }} 
+       
+    - name: Install Helm
+      uses: azure/setup-helm@v1
+      with: 
+        version: '3.7.0'
+         
+    - name: Rollback Helm deployment to previous package
+      run: helm rollback ${{env.ArtifactName}} ${{env.Rollback-Helm}} -n helm-${{env.ArtifactName}}
+  
+  
+  
