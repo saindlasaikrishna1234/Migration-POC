@@ -41,5 +41,5 @@ jobs:
           manifests/service.yaml
         images: |
           cloudlifeacr.azurecr.io/k8sflask:${{ github.sha }}
-        imagepullsecrets: |
+        imagepullsecrets: | 
           k8s-secret
